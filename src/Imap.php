@@ -163,7 +163,14 @@ class Imap extends Base
         $errno  =  0;
         $errstr = '';
 
-        $this->socket = @fsockopen($host, $this->port, $errno, $errstr, $timeout);
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ]);
+
+        $this->socket = @stream_socket_client(sprintf("%s:%s", $host, $this->port), $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
 
         if (!$this->socket) {
             //throw exception
